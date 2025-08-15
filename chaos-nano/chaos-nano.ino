@@ -10,58 +10,67 @@
 #include <avr/sleep.h>
 #include "timer.h"
 #include "test.h"
-#include "ffs.h"
+#include "task.h"
 #include "bleed.h"
 
-// Compressor compressor;
+// system init
 Timer timer;
-Test test;
-FFS ffsb;
+Task task;
+
+//device
 Bleed bleed;
+Test test;
+
+#if TASK_ID_MAX >= 8
+#error "the number of task's id is too large!"
+#endif
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
   board_init();
-  test.on(true);
-  bleed.on(true);
+  device_on();
 
   set_sleep_mode(SLEEP_MODE_IDLE);
   sleep_enable();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  switch(ffsb.get()){
-    case TASK_ID_BLEED:
-      // Serial.println("[main:] loop(TASK_ID_BLEED)");
+   switch (task.getNextPriority()) {
+    case TASK_ID_DEV_BLEED:
       bleed.loop();
       break;
 
     case TASK_ID_TEST:
-      // Serial.println("[main:] loop(TASK_ID_TEST)");
       test.loop();
       break;
 
     default:
-      // Serial.println("[main:] loop(sleep)");
-      sleep_cpu();
+      task.restoreAll();
+      if (IDLE_PRI != task.getNextPriority()) {
+        sleep_cpu();
+      }
+
       break;
   }
-
 }
- 
-void board_init(void)
-{
-  noInterrupts(); //禁止所有中断
 
-  ffsb.setup();
+void board_init(void) {
+  noInterrupts();  //禁止所有中断
+
+  // system
+  task.setup();
   timer.setup();
-  // compressor.setup();
-  test.setup();
-  bleed.setup();
 
-  interrupts();               //允许所有中断
-  // test.on(true);
+  // device or user's task
+  bleed.setup();
+  test.setup();
+
+  interrupts();  //允许所有中断
+}
+
+void device_on(void) {
+  bleed.on(true);
+  test.on(true);
 }

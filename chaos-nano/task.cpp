@@ -7,10 +7,10 @@
  */
 
 #include <Arduino.h>
-#include "ffs.h"
+#include "task.h"
 #include <util/atomic.h>
 
-static volatile uint8_t taskFFS;
+static volatile uint8_t taskPriority;
 static const int8_t ffsTable[256] = {
   -1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -30,26 +30,59 @@ static const int8_t ffsTable[256] = {
   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
 };
 
-void FFS::setup() {
-  taskFFS = 0;
+static struct {
+  bool block : 1;
+} status[TASK_ID_MAX];
+
+void Task::setup() {
+  taskPriority = 0;
+  for(int i = 0; i < TASK_ID_MAX; i++){
+    status[i].block = true;
+  }
 }
 
-int8_t FFS::get() {
+int8_t Task::getNextPriority() {
   uint8_t ffs;
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-    ffs = ffsTable[taskFFS];
+    ffs = ffsTable[taskPriority];
   }
   return ffs;
 }
 
-void FFS::set(enum task_id_number id) {
+void Task::setBlock(enum task_id_number id) {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-    taskFFS |= 1 << id;
+    status[id].block = true;
+    taskPriority &= ~(1 << id);
   }
 }
 
-void FFS::clear(enum task_id_number id) {
+void Task::setRun(enum task_id_number id) {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-    taskFFS &= ~(1 << id);
+    status[id].block = false;
+    taskPriority |= 1 << id;
+  }
+}
+
+void Task::runOnce(enum task_id_number id) {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    taskPriority |= 1 << id;
+  }
+}
+
+void Task::stopOnce(enum task_id_number id) {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    taskPriority &= ~(1 << id);
+  }
+}
+
+void Task::restoreAll() {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    for (int i = 0; i < TASK_ID_MAX; i++) {
+        if(status[i].block){
+          taskPriority &= ~(1 << i);
+        }else{
+          taskPriority |= 1 << i;
+        }
+    }
   }
 }

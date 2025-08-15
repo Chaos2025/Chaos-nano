@@ -2,7 +2,6 @@
 #define _TIMER_H_
 
 #include "task.h"
-#include "ffs.h"
 
 typedef void (*timer_callback)();
 
@@ -13,4 +12,6 @@ class Timer
     void create(enum task_id_number id, int msecond, bool* flag, bool blocked);
     void cancel(enum task_id_number id);
 };
+
+extern Timer timer;
 #endif

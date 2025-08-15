@@ -8,4 +8,6 @@ class Test
     void on(bool b);
     void loop();
 };
+
+extern Test test;
 #endif

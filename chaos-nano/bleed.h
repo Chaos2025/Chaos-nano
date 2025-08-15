@@ -8,4 +8,6 @@ class Bleed
     void on(bool b);
     void loop();
 };
+
+extern Bleed bleed;
 #endif

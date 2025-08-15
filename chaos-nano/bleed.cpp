@@ -10,59 +10,37 @@
 #include <Arduino.h> 
 #include "bleed.h"
 #include "timer.h"
-#include "ffs.h"
+#include "task.h"
 
-#define BLEED_VALVE 3
+#define DELAY_MS        (1000 * 2)
 #define ON    1
 #define OFF   0
 
-extern Timer timer;
-extern FFS ffsb;
+static bool flag;
 
-static bool time_flag;
-static struct{
-  bool running;
-  bool cur_state;
-  bool time_flag;
-} status;
 
 void Bleed::setup()
 {
-  pinMode(BLEED_VALVE, OUTPUT);
-
-  status.running = false;
-  status.cur_state = false;
-  status.time_flag = false;
+  flag = false;
+  Serial.println("[BLEED:] INIT");
 }
 
 void Bleed::on(bool b)
 {
   if(b){
-    ffsb.set(TASK_ID_BLEED);
-    digitalWrite(BLEED_VALVE, ON);
-    Serial.println("[Bleed:] on(true)");
-    timer.create(TASK_ID_BLEED, 2000, &status.time_flag, true);
-
-    status.running = true;
-    status.cur_state = true;
+    task.setRun(TASK_ID_DEV_BLEED);
+    timer.create(TASK_ID_DEV_BLEED, DELAY_MS, &flag, true);
   } else {
-    ffsb.clear(TASK_ID_BLEED);
-    digitalWrite(BLEED_VALVE, OFF);
-    timer.cancel(TASK_ID_BLEED);
-
-    status.running = false;
-    status.cur_state = false;
+    timer.cancel(TASK_ID_DEV_BLEED);
+    task.setBlock(TASK_ID_DEV_BLEED);
   }
 }
 
 void Bleed::loop()
 {
-  if(status.time_flag){
-    status.time_flag = false;
-    timer.create(TASK_ID_BLEED, 2000, &status.time_flag, true);
-    Serial.println("\n\n\n[Bleed:] loop(true)\n\n\n");
-  }else{
-    Serial.println("[Bleed:] loop(false)");
-    ffsb.clear(TASK_ID_BLEED);
+  if(flag){
+    flag = false;
+    timer.create(TASK_ID_DEV_BLEED, DELAY_MS, &flag, true);
+    Serial.println("[bleed:] loop(true)");
   }
 }
