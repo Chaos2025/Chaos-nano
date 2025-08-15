@@ -8,7 +8,7 @@ typedef void (*timer_callback)();
 class Timer
 {
   public:
-    void setup(); // 初始化引脚
+    void setup(); 
     void create(enum task_id_number id, int msecond, bool* flag, bool blocked);
     void cancel(enum task_id_number id);
 };

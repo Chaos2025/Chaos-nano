@@ -3,7 +3,8 @@
  * data:    2025-07-15
  *
  * description: 
- *  
+ *  The scheduler based on priority.
+ *  The task manager which can block a task or not.
  */
 
 #include <Arduino.h>

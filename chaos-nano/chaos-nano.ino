@@ -3,7 +3,8 @@
  * data:    2025-07-15
  *
  * description: 
- *  
+ *  This is the main file. 
+ *  It implemented the main loop of Chaos-nano
  */
 
 #include <util/atomic.h>
@@ -13,11 +14,11 @@
 #include "task.h"
 #include "bleed.h"
 
-// system init
+// system define
 Timer timer;
 Task task;
 
-//device
+//device define
 Bleed bleed;
 Test test;
 
@@ -26,7 +27,6 @@ Test test;
 #endif
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
 
   board_init();
@@ -57,7 +57,7 @@ void loop() {
 }
 
 void board_init(void) {
-  noInterrupts();  //禁止所有中断
+  noInterrupts();  //Close all interruptions
 
   // system
   task.setup();
@@ -67,7 +67,7 @@ void board_init(void) {
   bleed.setup();
   test.setup();
 
-  interrupts();  //允许所有中断
+  interrupts();  //Open all interruptions
 }
 
 void device_on(void) {

@@ -1,3 +1,11 @@
+/*
+ * author:  Ansen
+ * data:    2025-07-15
+ *
+ * description: 
+ *  This device prints a string for each 1 second
+ */
+
 #include <Arduino.h> 
 #include "test.h"
 #include "timer.h"

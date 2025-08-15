@@ -4,7 +4,7 @@
 class Test
 {
   public:
-    void setup(); // 初始化引脚
+    void setup(); 
     void on(bool b);
     void loop();
 };

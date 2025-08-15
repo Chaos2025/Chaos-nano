@@ -3,8 +3,7 @@
  * data:    2025-07-15
  *
  * description: 
- *  PIN:  
- *      3 <===> Bleed valve (not keep working for more than 3s)
+ *  This device prints a string for each 2 second
  */
 
 #include <Arduino.h> 
