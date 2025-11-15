@@ -37,3 +37,9 @@ The timing accuracy is 1ms.
 There is no idle status, but `MCU` can be into a low-power mode.
 
 When the scheduler does not acquire any ready tasks, it goes into a low-power state. By modifying the sleep flag (for example: "SLEEP_MODE_IDLE"), you can change the level to enter low power.
+
+## 五、 应用视频
+
+<div align="center">
+  <img src="pic/product_show.gif">
+</div>
